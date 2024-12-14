@@ -53,9 +53,6 @@ const App = () => {
         })
     }
 
-    console.log(value);
-
-
     return (
         <div className="app absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 min-w-[300px] min-h-[300px] bg-white rounded-md p-3 flex flex-col">
             <FunctionCard

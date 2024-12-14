@@ -49,7 +49,7 @@ const FunctionCard = ({
                 <select
                     className="p-2 border-2 border-[#d3d3d3] rounded-md disabled:text-[#c7c6c7] disabled:bg-[#f4f5f5] disabled:border-[#c7c6c7]"
                     value={selectedFunction || ""}
-                    // disabled
+                    disabled
                     onChange={handleFunctionChange}
                 >
                     {
