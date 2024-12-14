@@ -1,33 +1,59 @@
 import React, { useState } from 'react';
 import FunctionCard from './components/FunctionCard.tsx';
-import FinalOutput from './components/FinalOutput.tsx';
 import { useFunctionChain } from './hooks/useFunctionChain.ts';
-import { FunctionChain } from './types/index';
+import { FunctionChain, ValueType } from './types/index';
 
 const App = () => {
-    const [initialValue, setInitialValue] = useState(2);
-    const { functions, calculateOutput } = useFunctionChain(initialValue);
-    const [currentFunction, setCurrentFunction] = useState<FunctionChain>(functions[0])
-    const [functionFlow, setFunctionFlow] = useState<number[]>([functions[0].id])
+    const [value, setValue] = useState<ValueType>({
+        preValue: null,
+        nextValue: 2
+    });
+    const { functions, calculateOutput } = useFunctionChain(value.nextValue ?? 0);
+    const [currentFunction, setCurrentFunction] = useState<FunctionChain>(functions[0]);
+    const [functionFlow, setFunctionFlow] = useState<number[]>([functions[0].id]);
+    const [isFinalPopupVisible, setIsFinalPopupVisible] = useState(false);
+    const [isInputPopupVisible, setIsInputPopupVisible] = useState<boolean>();
+    const [finalOutput, setFinalOutput] = useState<number | null>(null);
+    const [gotResult, setGotResult] = useState(false)
 
-    const handleInitialValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInitialValue(parseFloat(e.target.value));
+    const goToNext = (argFnID: number | null) => {
+        if (isFinalPopupVisible) return;
+        if (gotResult) {
+            setIsFinalPopupVisible(true);
+            return
+        }
+        const res = calculateOutput(currentFunction.equation, value.nextValue);
+        setValue({
+            preValue: value.nextValue,
+            nextValue: res ?? 0
+        });
+
+        if (typeof argFnID === 'number') {
+            const nextFunction = functions.find(item => item.id === argFnID);
+            if (nextFunction) {
+                setFunctionFlow([...functionFlow, nextFunction.id]);
+                setCurrentFunction(nextFunction);
+            }
+        } else {
+            setIsFinalPopupVisible(true);
+            setFinalOutput(res ?? 0);
+            setGotResult(true)
+        }
     };
 
-    const goToNext = (value: number | null) => {
-        const res = calculateOutput(currentFunction.equation, initialValue)
-        setInitialValue(res ?? 0)
-        if (typeof value === "number") {
-            const nextFunction = functions.find(item => item.id === value)
-            console.log(res);
-            if (nextFunction) {
-                setFunctionFlow([...functionFlow, nextFunction.id])
-                setCurrentFunction(nextFunction)
+    const valueChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const inputText = Number(e.target.value)
+        if (typeof inputText !== "number") return
+        setGotResult(false)
+        setValue((pre): any => {
+            return {
+                ...pre,
+                nextValue: inputText
             }
-        }
+        })
     }
 
-    console.log(functionFlow);
+    console.log(value);
 
 
     return (
@@ -41,8 +67,41 @@ const App = () => {
                 functions={functions}
                 functionFlow={functionFlow}
                 onUpdateEquation={goToNext}
+                onInputClickHandler={() => setIsInputPopupVisible(true)}
             />
-            {/* <FinalOutput finalOutput={finalOutput} /> */}
+
+            {isFinalPopupVisible && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+                        <h2 className="text-[2rem] font-semibold mb-4">Final Output</h2>
+                        <p className="text-xl mb-4">{finalOutput}</p>
+                        <button
+                            onClick={() => setIsFinalPopupVisible(false)}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
+            {isInputPopupVisible && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg text-center flex flex-col gap-4">
+                        <h2 className="text-[2rem] font-semibold">Current Input</h2>
+                        <input type='number'
+                            className='mb-4 p-3 border border-black rounded-md outline-none'
+                            defaultValue={gotResult ? value.preValue : value.nextValue}
+                            onChange={valueChangeHandler}
+                        />
+                        <button
+                            onClick={() => setIsInputPopupVisible(false)}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

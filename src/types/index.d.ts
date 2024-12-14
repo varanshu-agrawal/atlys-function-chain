@@ -5,7 +5,8 @@ export interface FunctionCardProps {
     input: number | null;
     onUpdateEquation: any;
     functions: FunctionChain[];
-    functionFlow: number[]
+    functionFlow: number[];
+    onInputClickHandler: any;
 }
 
 export interface FunctionChain {
@@ -14,4 +15,9 @@ export interface FunctionChain {
     input: number | null;
     output: number | null;
     nextFunction?: number | null;
+}
+
+export interface ValueType {
+    nextValue: number | null;
+    preValue: number | null;
 }

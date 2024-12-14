@@ -13,24 +13,16 @@ export const useFunctionChain = (initialValue: number) => {
     const calculateOutput = (equation: string, input: number | null): number | null => {
         if (input === null) return null;
         try {
-            const sanitizedEquation = equation.replace(/x/g, input.toString()).replaceAll(/\^/g, '**');
+            let sanitizedEquation = equation.replace(/x/g, `(${input})`).replaceAll(/\^/g, '**');
+            sanitizedEquation = sanitizedEquation.replace(/(\d)\(/g, '$1*('); // Add * before (
+            sanitizedEquation = sanitizedEquation.replace(/\)(\d)/g, ')*$1'); // Add * after )
+            console.log("sanitizedEquation", sanitizedEquation);
+
             return eval(sanitizedEquation); // Note: Use a math library for better security.
         } catch {
             return null;
         }
     };
 
-    const updateChain = (updatedEquation: string, id: number) => {
-        setFunctions(prev => {
-            return prev.map(func => {
-                if (func.id === id) {
-                    const newOutput = calculateOutput(updatedEquation, func.input);
-                    return { ...func, equation: updatedEquation, output: newOutput };
-                }
-                return func;
-            });
-        });
-    };
-
-    return { functions, updateChain, calculateOutput };
+    return { functions, calculateOutput };
 };

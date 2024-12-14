@@ -9,7 +9,8 @@ const FunctionCard = ({
     input,
     onUpdateEquation,
     functions,
-    functionFlow
+    functionFlow,
+    onInputClickHandler
 }: FunctionCardProps) => {
     const [selectedFunction, setSelectedFunction] = useState<number | null>(null);
 
@@ -18,7 +19,7 @@ const FunctionCard = ({
             setSelectedFunction(nextFunction);
         } else {
             const firstValue = functions.filter(item => !functionFlow.includes(item.id))
-            if (firstValue)
+            if (firstValue?.length)
                 setSelectedFunction(firstValue[0].id)
         }
     }, [nextFunction, functionFlow]);
@@ -33,7 +34,7 @@ const FunctionCard = ({
 
     return (
         <>
-            <div className="card-header text-[#a5a4a5] flex gap-2 items-center text-[1.5rem]"><span>&#65825;</span><span>Function: {id}</span></div>
+            <div className="card-header text-[#a5a4a5] flex gap-2 mb-2 items-center text-[1.5rem]"><span>&#65825;</span><span>Function: {id}</span></div>
             <div className='flex flex-col mb-3'>
                 <p className='pb-1'>Equation</p>
                 <input
@@ -68,7 +69,8 @@ const FunctionCard = ({
                 </select>
             </div>
             <div className='flex justify-between mt-auto'>
-                <button type="button" onClick={() => { }} className='p-2 border border-black rounded-md'>Input</button>
+                <button type="button" onClick={onInputClickHandler}
+                    className='p-2 border border-black rounded-md'>Input</button>
                 <button type="button" onClick={() => onUpdateEquation(selectedFunction)} className='p-2 border border-black rounded-md'>Output</button>
             </div>
         </>
